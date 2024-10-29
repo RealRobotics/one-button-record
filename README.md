@@ -2,13 +2,15 @@
 
 This repo contains code to start and stop recording of video on a ROS2 robot.  The robot must be fitted with a push button switch and a means of displaying three status values, e.g. three LEDs or one RGB LED.
 
+The design of this package is detailed [here](design.md).
+
 ## ROS messages
 
 The following topics and messages are used by this driver.
 
 | Type | Topic | Message |
 |---|---|---|
-| Subscriber | `camera/compressed` | []()|
+| Subscriber | `camera/compressed` | [sensor_msgs/msg/CompressedImage Message](https://docs.ros2.org/latest/api/sensor_msgs/msg/CompressedImage.html)|
 
 ## Hardware Interface
 
