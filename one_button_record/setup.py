@@ -15,7 +15,7 @@ setup(
     zip_safe=True,
     maintainer='andy',
     maintainer_email='a.j.blight@leeds.ac.uk',
-    description='TODO: Package description',
+    description='Record compressed camera data to file using a single button to enable and disable the recording.',
     license='MIT',
     tests_require=['pytest'],
     entry_points={
