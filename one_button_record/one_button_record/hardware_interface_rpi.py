@@ -18,7 +18,9 @@ class HardwareInterfaceRPi(HardwareInterface):
         GPIO.setup(self.BUTTON_PIN, GPIO.IN)
 
     def get_button_state(self) -> bool:
-        pass
+        # TODO May need to debounce the button.
+        button_state = GPIO.input(self.BUTTON_PIN)
+        return button_state == GPIO.HIGH
 
     def set_led_state(self, state: LEDState):
         if state == LEDState.POWER_ON:
