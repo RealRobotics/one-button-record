@@ -19,7 +19,8 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "one_button_record = one_button_record.one_button_record:main"
+            "one_button_record = one_button_record.one_button_record:main",
+            "hw_test = one_button_record.hw_test:main"
         ],
     },
 )
