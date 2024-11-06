@@ -29,6 +29,12 @@ The hardware_interface.cpp file can be modified to suit your hardware.
 
 1. Clone this repo in the workspace `src` directory.
 2. Build using `colcon build`.
+3. Run using `ros2 run one_button_record one_button_record`.
+4. To test the hardware interface only, use `ros2 run one_button_record hw_test`.
+
+## Troubleshooting
+
+I had issues with Python not being able to import the `cv2` module.  This was caused by PlatformIO setting the `PATH` environment variable to point that the virtual environment (VENV) that it uses before the installed versions, in this case `/home/andy/.platformio/penv/bin`.  I fixed this and the scripts worked.
 
 ## Acknowledgments
 

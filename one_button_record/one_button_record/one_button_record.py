@@ -1,25 +1,58 @@
+import cv2
+from cv_bridge import CvBridge
+
+import datetime
 import rclpy
 from rclpy.node import Node
 from rclpy.executors import ExternalShutdownException
 import time
+
+# Select hardware inferface.
 import one_button_record.hardware_interface as hw_if
-#import one_button_record.hardware_interface_rpi as hw_if
 
-from sensor_msgs.msg import CompressedImage
+# import one_button_record.hardware_interface_rpi as hw_if
+
+from sensor_msgs.msg import CameraInfo, CompressedImage
 
 
-class ImageWriter():
+class ImageWriter:
     def __init__(self):
-        pass
+        # Use [0,0] as a not set value for the frame size.
+        self.frame_size = [0, 0]  # : Tuple[int, int],
+        self.msg_image_format = "rgb8"  # TODO Check this.
+        self.video_writer_fps = 25.0  #: float,
+        self.output_file_name = "test.mp4"  #: str,
+        self.output_codec_type = "MP4V"  # : str
+        self._video_writer = None
+        self._cv_bridge = CvBridge()
 
     def open(self, filename):
-        pass
+        self._video_writer = cv2.VideoWriter(
+            filename,
+            fourcc=cv2.VideoWriter_fourcc(*self.output_codec_type),
+            fps=self.video_writer_fps,
+            frameSize=self.frame_size,
+        )
 
     def close(self):
-        pass
+        self._video_writer.release()
 
     def write(self, image):
-        pass
+        if self.frame_size != [0, 0]:
+            if self._video_writer is not None:
+                mat = self._cv_bridge.compressed_imgmsg_to_cv2(
+                    image, self.self.msg_image_format
+                )
+                self._video_writer.write(mat)
+
+
+# Topics when running laptop camera.
+# /camera_info
+# /image_raw
+# /image_raw/compressed
+# /image_raw/compressedDepth
+# /image_raw/theora
+# /image_raw/zstd
 
 
 class ImageSubscriberNode(Node):
@@ -30,12 +63,15 @@ class ImageSubscriberNode(Node):
         self._filename = "test.mp4"
         self._hardware_interface = hardware_interface
         self._image_writer = ImageWriter()
-        self._subscription = self.create_subscription(
-            CompressedImage, "camera/compressed_image", self.listener_callback, 10
+        self._image_subscriber = self.create_subscription(
+            CompressedImage, "image_raw/compressed", self.image_callback, 10
         )
-        self._subscription  # prevent unused variable warning
+        self._camera_info_subscriber = self.create_subscription(
+            CameraInfo, "camera_info", self.camera_info_callback, 10
+        )
         # Create a timer that fires at 20Hz
-        timer_period = 0.05
+        # timer_period = 0.05
+        timer_period = 1
         self._timer = self.create_timer(timer_period, self.timer_callback)
 
     def timer_callback(self):
@@ -48,16 +84,32 @@ class ImageSubscriberNode(Node):
             else:
                 self.start_recording(self._filename)
 
-    def listener_callback(self, msg):
-        self.get_logger().info('I heard: "%s"' % msg.data)
+    def image_callback(self, msg):
+        # CompressedImage.msg format.
+        # Header header    # Header timestamp should be acquisition time of image
+        # string format    # Acceptable values: jpeg, png
+        # uint8[] data     # Compressed image buffer
+        self.get_logger().info('Frame format: "%s"' % msg.format)
         if self._recording:
             self._image_writer.write(msg.data)
 
+    def camera_info_callback(self, msg):
+        # CameraInfo.msg format.
+        # We are only interested in the height and width of the image.
+        # Header header
+        # uint32 height
+        # uint32 width
+        self.get_logger().info("Camera info callback.")
+        self._image_writer.frame_size = [msg.width, msg.height]
+
     def start_recording(self, filename):
-        self._image_writer.open(filename)
-        self._recording = True
-        self._filename = filename
-        print("Started recording to file: ", filename)
+        if self._image_writer.frame_size != [0, 0]:
+            self._image_writer.open(filename)
+            self._recording = True
+            self._filename = filename
+            print("Started recording to file: ", filename)
+        else:
+            print("Cannot start recording. Camera info not available.")
 
     def stop_recording(self):
         self._image_writer.close()

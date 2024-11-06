@@ -6,10 +6,8 @@ LEDState = Enum("LEDState", ["POWER_ON", "READY", "RECORDING", "ERROR"])
 
 class HardwareInterface:
     def __init__(self):
+        # No hardware to set up!
         pass
-        # Setup the LED and button GPIO pins.
-        # GPIO.setup(led_pin, GPIO.OUT)
-        # GPIO.setup(button_pin, GPIO.IN)
 
     def _set_power_on(self):
         print("Powering on...")
