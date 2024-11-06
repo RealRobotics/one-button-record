@@ -70,12 +70,11 @@ class ImageSubscriberNode(Node):
             CameraInfo, "camera_info", self.camera_info_callback, 10
         )
         # Create a timer that fires at 20Hz
-        # timer_period = 0.05
-        timer_period = 1
+        timer_period = 0.05
         self._timer = self.create_timer(timer_period, self.timer_callback)
 
     def timer_callback(self):
-        self.get_logger().info("timer has fired")
+        # self.get_logger().info("timer has fired")
         # Poll the state of the push button.
         button_state = self._hardware_interface.get_button_state()
         if button_state:
@@ -109,7 +108,7 @@ class ImageSubscriberNode(Node):
             self._filename = filename
             print("Started recording to file: ", filename)
         else:
-            print("Cannot start recording. Camera info not available.")
+            print("ERROR: Cannot start recording. Camera info not available.")
 
     def stop_recording(self):
         self._image_writer.close()
@@ -129,9 +128,7 @@ def main(args=None):
     except (KeyboardInterrupt, ExternalShutdownException):
         pass
     image_subscriber.destroy_node()
-    # Fix me.
-    # Generates exception after Ctrl-C.
-    # Looks like it is a bug in rclpy.
+    # FIXME(AJB) Generates exception after Ctrl-C.  Looks like it is a bug in rclpy.
     rclpy.shutdown()
 
 
