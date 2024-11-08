@@ -20,3 +20,16 @@ This file shows how to use GPIO pins on a Raspberry Pi: https://github.com/mlher
 2. Turn topic on and off.  When switched on, open file and write. When switched off, close file and then ignore any received messages.
 3. Monitor GPIO for button press to turn topic on and off.
 4. Control 3 GPIO output pins.
+
+## Implementation
+
+### Laptop 
+
+The first cut of the code was developed on my laptop as it is way faster than the single board computer that I will be using.  Wrote the code for everything including the untested GPIO code for a Raspberry Pi.  Got it working using the package `usb_cam` to access the built-in camera.  
+
+### LattePanda
+
+The LattePanda uses the Arduino chip for all GPIO access, so we need a second program to handle the button press input and the LED outputs.  That means we need to program the Arduino and then use some sort of interface to communicate between the main CPU and the Arduino. 
+
+Fortunately, LattePanda have thought about this and use an Arduino library called `Firmata` and a corresponding Python library called `pyFirmata`.  This allows us to write Python code on the main CPU that uses the Arduino GPIO pins in a very simple way.
+
