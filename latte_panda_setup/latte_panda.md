@@ -2,7 +2,7 @@
 
 How the LattePanda board was setup for the One Button Record package.
 
-## Setting up the Arduino and the Firmata library
+## Setting up the Arduino
 
 The first thing was to program the Arduino Mega chip so we could use the GPIO pins.  [This guide](http://docs.lattepanda.com/content/alpha_edition/python_arduino_bridge/#step-2) covers most of the steps but for Windows so you follow the general process as we are using Ubuntu.  These are things that needed to be  done differently.
 
@@ -18,13 +18,23 @@ and then rebooted!  I know that you should just be able to log out and in again,
 
 At this point, I was able to download a blink program and flash the red LED on the board.
 
-Installing the Firmata library was straightforward except for the overriding of permissions.  Ubuntu tries to insist that you only install Python packages using `pip` in a virtual environment (VENV).  However, as this is a single board computer doing one thing, we can ignore the warnings.  I installed the library like this:
+## Setting up the Firmata library
+
+The documentation refers to `pyFirmata` but this is no longer supported and has been replaced by `pyFirmata2`.
+
+Installing the pyFirmata2 library was straightforward except for the overriding of permissions.  Ubuntu tries to insist that you only install Python packages using `pip` in a virtual environment (VENV).  However, as this is a single board computer doing one thing, we can ignore the warnings.  I installed the library like this:
 
 ```bash
-sudo pip install --break-system-packages pyFirmata
+sudo pip install --break-system-packages pyFirmata2
 ```
 
-and tested the install as described in the LattePanda docs.  It worked so copied their demo program, changed the port and ran it.  Needless to say, it failed.  The error message is below:
+and tested the install as described in the LattePanda docs.  It worked so copied their demo program, changed the port and ran it and it works.
+
+__NOTE: When starting this program, there is a delay of a about 7 seconds before the LED starts to blink.__
+
+### Notes on Firmata install
+
+The code failed first time and that is when I found out about Firmata2. The error message is below:
 
 ```text
 $ python3 arduino_blink.py 
@@ -45,3 +55,5 @@ Traceback (most recent call last):
                    ^^^^^^^^^^^^^^^^^^
 AttributeError: module 'inspect' has no attribute 'getargspec'. Did you mean: 'getargs'?
 ```
+
+A quick search later and I find [this article](https://stackoverflow.com/questions/74585622/pyfirmata-gives-error-module-inspect-has-no-attribute-getargspec) that says that `pyFirmata` is no longer being supported but `pyFirmata2` is.  So time to install that and see what happens.  

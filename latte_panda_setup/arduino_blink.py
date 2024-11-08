@@ -1,4 +1,4 @@
-from pyfirmata import Arduino, util
+from pyfirmata2 import Arduino, util
 import time
 
 board = Arduino("/dev/ttyACM0")
