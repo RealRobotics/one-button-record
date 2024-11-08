@@ -29,7 +29,9 @@ The first cut of the code was developed on my laptop as it is way faster than th
 
 ### LattePanda
 
-The LattePanda uses the Arduino chip for all GPIO access, so we need a second program to handle the button press input and the LED outputs.  That means we need to program the Arduino and then use some sort of interface to communicate between the main CPU and the Arduino. 
+The LattePanda uses the Arduino chip for all GPIO access, so we need an Arduino program to handle the button press input and the LED outputs.  That means we need to program the Arduino and then use some sort of interface to communicate between the main CPU and the Arduino. 
 
 Fortunately, LattePanda have thought about this and use an Arduino library called `Firmata` and a corresponding Python library called `pyFirmata`.  This allows us to write Python code on the main CPU that uses the Arduino GPIO pins in a very simple way.
+
+Details on setting up the LattePanda board can be found [here](latte-panda-setup/latte-panda.md).
 
