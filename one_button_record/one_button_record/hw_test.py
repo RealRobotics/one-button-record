@@ -1,5 +1,6 @@
 import time
-import one_button_record.hardware_interface as hw_if
+# import one_button_record.hardware_interface as hw_if
+import one_button_record.hardware_interface_latte as hw_if
 
 
 def boot_up(hw):
