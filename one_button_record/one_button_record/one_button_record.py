@@ -8,9 +8,9 @@ from rclpy.executors import ExternalShutdownException
 import time
 
 # Select hardware inferface.
-import one_button_record.hardware_interface as hw_if
-
-# import one_button_record.hardware_interface_rpi as hw_if
+# import one_button_record.hardware_interface as hw_if
+import one_button_record.hardware_interface_latte as hw_if
+from one_button_record.hardware_interface import LEDState
 
 from sensor_msgs.msg import CameraInfo, CompressedImage
 
@@ -58,6 +58,7 @@ class ImageWriter:
 class ImageSubscriberNode(Node):
     def __init__(self, hardware_interface):
         super().__init__("image_subscriber")
+        self._ready = False
         self._recording = False
         # FIXME hard coded file name.
         self._filename = "test.mp4"
@@ -72,6 +73,9 @@ class ImageSubscriberNode(Node):
         # Create a timer that fires at 20Hz
         timer_period = 0.05
         self._timer = self.create_timer(timer_period, self.timer_callback)
+        # Blink interval vars.
+        self._blink_next_t = time.time()
+        self._BLINK_INTERVAL_S = 0.25  # Seconds
 
     def timer_callback(self):
         # self.get_logger().info("timer has fired")
@@ -82,6 +86,16 @@ class ImageSubscriberNode(Node):
                 self.stop_recording()
             else:
                 self.start_recording(self._filename)
+        # Update LEDs.
+        if self._blink_next_t < time.time():
+            self._hardware_interface.blink()
+            self._blink_next_t = time.time() + self._BLINK_INTERVAL_S
+        if self._recording:
+            self._hardware_interface.set_led_state(LEDState.RECORDING)
+        elif self._ready:
+            self._hardware_interface.set_led_state(LEDState.READY)
+        else:
+            self._hardware_interface.set_led_state(LEDState.POWER_ON)
 
     def image_callback(self, msg):
         # CompressedImage.msg format.
@@ -100,6 +114,7 @@ class ImageSubscriberNode(Node):
         # uint32 width
         self.get_logger().info("Camera info callback.")
         self._image_writer.frame_size = [msg.width, msg.height]
+        self._ready = True
 
     def start_recording(self, filename):
         if self._image_writer.frame_size != [0, 0]:
@@ -114,12 +129,14 @@ class ImageSubscriberNode(Node):
         self._image_writer.close()
         self._recording = False
         print("Stopped recording to file: ", self._filename)
+        self._hardware_interface.set_led_state(LEDState.READY)
 
 
 def main(args=None):
     print("Setting up hardware interface.")
-    hw = hw_if.HardwareInterface()
-    # hw = hw_if.HardwareInterfaceRPi()
+    # hw = hw_if.HardwareInterface()
+    hw = hw_if.HardwareInterfaceLatte()
+    hw.set_led_state(LEDState.POWER_ON)
     print("Subscribing to image topic.")
     rclpy.init(args=args)
     image_subscriber = ImageSubscriberNode(hw)
