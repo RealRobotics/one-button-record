@@ -104,7 +104,7 @@ class ImageSubscriberNode(Node):
         # Header header    # Header timestamp should be acquisition time of image
         # string format    # Acceptable values: jpeg, png
         # uint8[] data     # Compressed image buffer
-        self.get_logger().info('Frame format: "%s"' % msg.format)
+        self.get_logger().debug('Frame format: "%s"' % msg.format)
         if self._recording:
             self._image_writer.write(msg)
 
@@ -114,7 +114,7 @@ class ImageSubscriberNode(Node):
         # Header header
         # uint32 height
         # uint32 width
-        self.get_logger().info("Camera info callback.")
+        self.get_logger().debug("Camera info callback.")
         self._image_writer.frame_size = [msg.width, msg.height]
         self._ready = True
 

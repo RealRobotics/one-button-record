@@ -35,5 +35,12 @@ Fortunately, LattePanda have thought about this and use an Arduino library calle
 
 Details on setting up the LattePanda board can be found [here](latte-panda-setup/latte-panda.md).
 
-The LattePanda implementation of the `HardwareInterface` class implements the LED functions and the `get_button_press` function. 
+The LattePanda implementation of the `HardwareInterface` class implements the LED functions and the `get_button_press` function.  This code was prototyped in the `latte_button_test.py` script to limit the scope of the problem and then the working code was added to the `HardwareInterfaceLatte` class.
+
+### One button record
+
+Now the hardware interface was doing what I wanted, I started testing the top level code.  There were numerous small issues with getting the camera working correctly, but a  basic working set of values were found and the launch file `launch/usb_camera_only.launch.py` can be used to start the camera successfully.  
+
+Running the node had many small issues with logging and getting the image parameters correct.  Once these were fixed, the node runs well with one issue: when the button is pressed and held down for mor than about 0.5 seconds, the recording starts and then immediately stops.  What needs to happen is when the button is pressed and held down, the recording starts.  The recording should stop only after the button has been released and pressed again.
+
 
