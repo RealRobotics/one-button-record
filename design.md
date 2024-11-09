@@ -35,3 +35,5 @@ Fortunately, LattePanda have thought about this and use an Arduino library calle
 
 Details on setting up the LattePanda board can be found [here](latte-panda-setup/latte-panda.md).
 
+The LattePanda implementation of the `HardwareInterface` class implements the LED functions and the `get_button_press` function. 
+

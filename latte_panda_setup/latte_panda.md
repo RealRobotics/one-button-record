@@ -56,4 +56,4 @@ Traceback (most recent call last):
 AttributeError: module 'inspect' has no attribute 'getargspec'. Did you mean: 'getargs'?
 ```
 
-A quick search later and I find [this article](https://stackoverflow.com/questions/74585622/pyfirmata-gives-error-module-inspect-has-no-attribute-getargspec) that says that `pyFirmata` is no longer being supported but `pyFirmata2` is.  So time to install that and see what happens.  
+A quick search later and I find [this article](https://stackoverflow.com/questions/74585622/pyfirmata-gives-error-module-inspect-has-no-attribute-getargspec) that says that `pyFirmata` is no longer being supported but `pyFirmata2` is.  So time to install that and see what happens.  It worked.  See above for details.

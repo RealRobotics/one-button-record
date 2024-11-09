@@ -7,24 +7,26 @@ LEDState = Enum("LEDState", ["POWER_ON", "READY", "RECORDING", "ERROR"])
 class HardwareInterface:
     def __init__(self):
         # No hardware to set up!
-        pass
+        print("HI::__init__")
 
     def _set_power_on(self):
-        print("Powering on...")
+        print("HI::Powering on...")
 
     def _set_ready(self):
-        print("Ready...")
+        print("HI::Ready...")
 
     def _set_recording(self):
-        print("Recording...")
+        print("HI::Recording...")
 
     def get_button_state(self) -> bool:
+        print("HI::gbs")
         # Simulate the button state.
         if input("Press Enter to simulate button press: "):
             return True
         return False
 
     def set_led_state(self, state: LEDState):
+        print("HI::sls")
         if state == LEDState.POWER_ON:
             self._set_power_on()
         elif state == LEDState.READY:
@@ -33,3 +35,6 @@ class HardwareInterface:
             self._set_recording()
         else:
             print("ERROR")
+
+    def blink(self):
+        print("HI::Blink")

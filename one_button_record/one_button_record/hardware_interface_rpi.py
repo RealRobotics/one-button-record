@@ -17,23 +17,27 @@ class HardwareInterfaceRPi(HardwareInterface):
         # Setup the button GPIO pin.
         GPIO.setup(self.BUTTON_PIN, GPIO.IN)
 
+    # RPi implementation of LED control.
+    def _set_power_on(self):
+        GPIO.output(self._LED_POWER, GPIO.HIGH)
+        GPIO.output(self._LED_READY, GPIO.LOW)
+        GPIO.output(self._LED_RECORDING, GPIO.LOW)
+        print("Powering on...")
+
+    def _set_ready(self):
+        GPIO.output(self._LED_POWER, GPIO.LoW)
+        GPIO.output(self._LED_READY, GPIO.HIGH)
+        GPIO.output(self._LED_RECORDING, GPIO.LOW)
+        print("Ready...")
+
+    def _set_recording(self):
+        GPIO.output(self._LED_POWER, GPIO.LOW)
+        GPIO.output(self._LED_READY, GPIO.LOW)
+        GPIO.output(self._LED_RECORDING, GPIO.HIGH)
+        print("Recording...")
+
+    # RPi implementation for button press detection.
     def get_button_state(self) -> bool:
         # TODO May need to debounce the button.
         button_state = GPIO.input(self.BUTTON_PIN)
         return button_state == GPIO.HIGH
-
-    def set_led_state(self, state: LEDState):
-        if state == LEDState.POWER_ON:
-            GPIO.output(self._LED_POWER, GPIO.HIGH)
-            GPIO.output(self._LED_READY, GPIO.LOW)
-            GPIO.output(self._LED_RECORDING, GPIO.LOW)
-        elif state == LEDState.READY:
-            GPIO.output(self._LED_POWER, GPIO.LoW)
-            GPIO.output(self._LED_READY, GPIO.HIGH)
-            GPIO.output(self._LED_RECORDING, GPIO.LOW)
-        elif state == LEDState.RECORDING:
-            GPIO.output(self._LED_POWER, GPIO.LOW)
-            GPIO.output(self._LED_READY, GPIO.LOW)
-            GPIO.output(self._LED_RECORDING, GPIO.HIGH)
-        else:
-            print("ERROR")
