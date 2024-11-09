@@ -1,3 +1,4 @@
+import logging
 import pyfirmata2
 from one_button_record.hardware_interface import HardwareInterface, LEDState
 
@@ -7,7 +8,8 @@ class HardwareInterfaceLatte(HardwareInterface):
     """
 
     def __init__(self):
-        print("HIL::__init__")
+        # logging.basicConfig(level=logging.INFO)
+        logging.info("HIL::__init__")
         PORT = pyfirmata2.Arduino.AUTODETECT
         self._board = pyfirmata2.Arduino(PORT)
         # GPIO Pin numbers.
@@ -34,9 +36,9 @@ class HardwareInterfaceLatte(HardwareInterface):
     def _input_pin_callback(self, value):
         # Needs hardware debounce.
         if value:
-            print("HIL::Released")
+            logging.info("HIL::Released")
         else:
-            print("HIL::Pressed")
+            logging.info("HIL::Pressed")
         self._input_pin_last_value = not value
 
     # These are called by the base class.
@@ -44,27 +46,27 @@ class HardwareInterfaceLatte(HardwareInterface):
         self._board.digital[self._LED_POWER].write(True)
         self._board.digital[self._LED_READY].write(False)
         self._board.digital[self._LED_RECORDING].write(False)
-        print("HIL::Power on...")
+        logging.info("HIL::Power on...")
 
     def _set_ready(self):
         self._board.digital[self._LED_POWER].write(True)
         self._board.digital[self._LED_READY].write(True)
         self._board.digital[self._LED_RECORDING].write(False)
-        print("HIL::Ready...")
+        logging.info("HIL::Ready...")
 
     def _set_recording(self):
         self._board.digital[self._LED_POWER].write(True)
         self._board.digital[self._LED_READY].write(True)
         self._board.digital[self._LED_RECORDING].write(True)
-        print("HIL::Recording...")
+        logging.info("HIL::Recording...")
 
     # This overrides the based class implementation.
     def get_button_state(self) -> bool:
-        print("HIL::gbs")
+        logging.info("HIL::gbs")
         return self._input_pin_last_value
 
     def blink(self):
-        print("HIL::Blink")
+        logging.info("HIL::Blink")
         self._blink_state = not self._blink_state
         self._board.digital[self._LED_RED].write(self._blink_state)
 

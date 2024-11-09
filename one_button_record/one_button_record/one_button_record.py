@@ -3,6 +3,7 @@ from cv_bridge import CvBridge
 
 import datetime
 import rclpy
+import rclpy.logging
 from rclpy.node import Node
 from rclpy.executors import ExternalShutdownException
 import time
@@ -19,10 +20,11 @@ class ImageWriter:
     def __init__(self):
         # Use [0,0] as a not set value for the frame size.
         self.frame_size = [0, 0]  # : Tuple[int, int],
-        self.msg_image_format = "rgb8"  # TODO Check this.
-        self.video_writer_fps = 25.0  #: float,
+        # The camera says it output bgr8.
+        self.msg_image_format = "bgr8"
+        self.video_writer_fps = 30.0  #: float,
         self.output_file_name = "test.mp4"  #: str,
-        self.output_codec_type = "MP4V"  # : str
+        self.output_codec_type = "mp4v"  # : str
         self._video_writer = None
         self._cv_bridge = CvBridge()
 
@@ -37,11 +39,11 @@ class ImageWriter:
     def close(self):
         self._video_writer.release()
 
-    def write(self, image):
+    def write(self, msg):
         if self.frame_size != [0, 0]:
             if self._video_writer is not None:
                 mat = self._cv_bridge.compressed_imgmsg_to_cv2(
-                    image, self.self.msg_image_format
+                    msg, self.msg_image_format
                 )
                 self._video_writer.write(mat)
 
@@ -104,7 +106,7 @@ class ImageSubscriberNode(Node):
         # uint8[] data     # Compressed image buffer
         self.get_logger().info('Frame format: "%s"' % msg.format)
         if self._recording:
-            self._image_writer.write(msg.data)
+            self._image_writer.write(msg)
 
     def camera_info_callback(self, msg):
         # CameraInfo.msg format.
@@ -121,14 +123,16 @@ class ImageSubscriberNode(Node):
             self._image_writer.open(filename)
             self._recording = True
             self._filename = filename
-            print("Started recording to file: ", filename)
+            self.get_logger().info('Started recording to file: "%s"' % filename)
         else:
-            print("ERROR: Cannot start recording. Camera info not available.")
+            self.get_logger().error(
+                "Cannot start recording. Camera info not available."
+            )
 
     def stop_recording(self):
         self._image_writer.close()
         self._recording = False
-        print("Stopped recording to file: ", self._filename)
+        self.get_logger().info('Stopped recording to file: "%s"' % self._filename)
         self._hardware_interface.set_led_state(LEDState.READY)
 
 
@@ -137,7 +141,7 @@ def main(args=None):
     # hw = hw_if.HardwareInterface()
     hw = hw_if.HardwareInterfaceLatte()
     hw.set_led_state(LEDState.POWER_ON)
-    print("Subscribing to image topic.")
+    print("Subscribing to topics.")
     rclpy.init(args=args)
     image_subscriber = ImageSubscriberNode(hw)
     try:
@@ -147,6 +151,7 @@ def main(args=None):
     image_subscriber.destroy_node()
     # FIXME(AJB) Generates exception after Ctrl-C.  Looks like it is a bug in rclpy.
     rclpy.shutdown()
+    print("Shutdown.")
 
 
 if __name__ == "__main__":
