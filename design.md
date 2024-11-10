@@ -23,13 +23,13 @@ This file shows how to use GPIO pins on a Raspberry Pi: https://github.com/mlher
 
 ## Implementation
 
-### Laptop 
+### Laptop
 
-The first cut of the code was developed on my laptop as it is way faster than the single board computer that I will be using.  Wrote the code for everything including the untested GPIO code for a Raspberry Pi.  Got it working using the package `usb_cam` to access the built-in camera.  
+The first cut of the code was developed on my laptop as it is way faster than the single board computer that I will be using.  Wrote the code for everything including the untested GPIO code for a Raspberry Pi.  Got it working using the package `usb_cam` to access the built-in camera.
 
 ### LattePanda
 
-The LattePanda uses the Arduino chip for all GPIO access, so we need an Arduino program to handle the button press input and the LED outputs.  That means we need to program the Arduino and then use some sort of interface to communicate between the main CPU and the Arduino. 
+The LattePanda uses the Arduino chip for all GPIO access, so we need an Arduino program to handle the button press input and the LED outputs.  That means we need to program the Arduino and then use some sort of interface to communicate between the main CPU and the Arduino.
 
 Fortunately, LattePanda have thought about this and use an Arduino library called `Firmata` and a corresponding Python library called `pyFirmata`.  This allows us to write Python code on the main CPU that uses the Arduino GPIO pins in a very simple way.
 
@@ -39,13 +39,13 @@ The LattePanda implementation of the `HardwareInterface` class implements the LE
 
 ### One button record
 
-Now the hardware interface was doing what I wanted, I started testing the top level code.  There were numerous small issues with getting the camera working correctly, but a  basic working set of values were found and the launch file `launch/usb_camera_only.launch.py` can be used to start the camera successfully.  
+Now the hardware interface was doing what I wanted, I started testing the top level code.  There were numerous small issues with getting the camera working correctly, but a  basic working set of values were found and the launch file `launch/usb_camera_only.launch.py` can be used to start the camera successfully.
 
 Running the node had many small issues with logging and getting the image parameters correct.  Once these were fixed, the node runs well with one issue: when the button is pressed and held down for mor than about 0.5 seconds, the recording starts and then immediately stops.  What needs to happen is when the button is pressed and held down, the recording starts.  The recording should stop only after the button has been released and pressed again.
 
-After a bit of thinking, I realised that I needed 5 states: `power_on`, `ready`, `starting_recording`, `recording`, `stopping_recording`.  The `starting_recording` and `stopping_recording` states are transitioned into when the button is pressed and exited when the button is released.  
+After a bit of thinking, I realised that I needed 5 states: `power_on`, `ready`, `starting_recording`, `recording`, `stopping_recording`.  The `starting_recording` and `stopping_recording` states are transitioned into when the button is pressed and exited when the button is released.
 
-When I implemented this, it ended up as more of a sub-state just related to the button state.  Adding the variable `self._button_was_pressed` and related logic solved the problem very neatly. 
+When I implemented this, it ended up as more of a sub-state just related to the button state.  Adding the variable `self._button_was_pressed` and related logic solved the problem very neatly.
 
 The next thing was to add a timestamp to the video filename to stop overwriting of previous files.  Very simple as I just used the function `datetime.datetime.now().isoformat()` for the filename and appended the `.mp4`. Or so I thought until I tested it when I got this error:
 
@@ -61,10 +61,15 @@ and this error stopped the video being created.  I suspected that either the hyp
 [INFO] [1731232285.871292340] [image_subscriber]: Started recording to file: "~/Videos/20241110T095125.mp4"
 ```
 
-So took that change out for now. 
+So took that change out for now.
+
+Worked out how to get a clean shutdown, don't call `rclpy.shutdown()`.  Added LED state `ALL_OFF` and turn all LEDs off when stopping the program.
+
+Sorted out use of camera params file (took a while) and can save at full HD resolution.
+
+Added timeout on `camera_info` topic so `READY` LED turns on and off as the camera is run and stopped.
 
 ## TODO
 
-* On shutdown (if I can get a clean shutdown), turn the LEDs off.
 * Write videos to `~/Videos` directory.
-* Sort out camera resolution.
+

@@ -61,12 +61,15 @@ class ImageSubscriberNode(Node):
     def __init__(self, hardware_interface):
         super().__init__("image_subscriber")
         # Main state variables.
-        self._ready = False
         self._recording = False
         # Button sub-state variable.
         self._button_was_pressed = False
-        # FIXME hard coded file name.
-        self._filename = "test.mp4"
+        # Ready state variables.
+        self._ready = False
+        self._ready_timeout_t = time.time()
+        self._READY_TIMEOUT_s = 1.0
+        # Other variables.
+        self._filename = ""
         self._hardware_interface = hardware_interface
         self._image_writer = ImageWriter()
         self._image_subscriber = self.create_subscription(
@@ -114,6 +117,9 @@ class ImageSubscriberNode(Node):
             if self._button_was_pressed:
                 # Button released.
                 self._button_was_pressed = False
+        # Update ready state
+        if self._ready_timeout_t < time.time():
+            self._ready = False
         # Update LEDs.
         self._update_leds()
 
@@ -135,6 +141,7 @@ class ImageSubscriberNode(Node):
         self.get_logger().debug("Camera info callback.")
         self._image_writer.frame_size = [msg.width, msg.height]
         self._ready = True
+        self._ready_timeout_t = time.time() + self._READY_TIMEOUT_s
 
     def start_recording(self, filename):
         if self._image_writer.frame_size != [0, 0]:
