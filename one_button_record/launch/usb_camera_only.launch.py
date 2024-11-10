@@ -30,8 +30,15 @@ from pathlib import Path  # noqa: E402
 def generate_launch_description():
     ld = LaunchDescription()
 
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    param_path = Path(dir_path, 'config', 'usb_camera_params.yaml')
+    # [WARNING] [launch_ros.actions.node]: Parameter file path is not a file:
+    # /home/pharos/ws/install/one_button_record/share/one_button_record/launch/config/usb_camera_params.yaml
+
+    launch_file_dir_path = os.path.dirname(os.path.realpath(__file__))
+    print(launch_file_dir_path)
+    parent_dir_path = Path(launch_file_dir_path, "..")
+    print(parent_dir_path)
+    param_path = Path(parent_dir_path, "config", "usb_camera_params.yaml")
+    print(param_path)
 
     camera_node = Node(
         # ros2 run usb_cam usb_cam_node_exe
