@@ -43,4 +43,28 @@ Now the hardware interface was doing what I wanted, I started testing the top le
 
 Running the node had many small issues with logging and getting the image parameters correct.  Once these were fixed, the node runs well with one issue: when the button is pressed and held down for mor than about 0.5 seconds, the recording starts and then immediately stops.  What needs to happen is when the button is pressed and held down, the recording starts.  The recording should stop only after the button has been released and pressed again.
 
+After a bit of thinking, I realised that I needed 5 states: `power_on`, `ready`, `starting_recording`, `recording`, `stopping_recording`.  The `starting_recording` and `stopping_recording` states are transitioned into when the button is pressed and exited when the button is released.  
 
+When I implemented this, it ended up as more of a sub-state just related to the button state.  Adding the variable `self._button_was_pressed` and related logic solved the problem very neatly. 
+
+The next thing was to add a timestamp to the video filename to stop overwriting of previous files.  Very simple as I just used the function `datetime.datetime.now().isoformat()` for the filename and appended the `.mp4`. Or so I thought until I tested it when I got this error:
+
+```text
+[ WARN:0@10.004] global ./modules/videoio/src/cap_gstreamer.cpp (2180) open OpenCV | GStreamer warning: cannot link elements
+[INFO] [1731231381.694751795] [image_subscriber]: Started recording to file: "2024-11-10T09:36:21.mp4"
+```
+
+and this error stopped the video being created.  I suspected that either the hyphens or the colons are causing problems inside GStreamer, so I changed the datetime function to this `                 datetime.datetime.now().strftime("%Y%m%dT%H%M%S")` which worked nicely.  At this stage, I also decided that the videos should be put in the `~/Videos` directory as they were cluttering up the workspace.  This caused the same old problem:
+
+```text
+[ WARN:0@8.901] global ./modules/videoio/src/cap_gstreamer.cpp (2180) open OpenCV | GStreamer warning: cannot link elements
+[INFO] [1731232285.871292340] [image_subscriber]: Started recording to file: "~/Videos/20241110T095125.mp4"
+```
+
+So took that change out for now. 
+
+## TODO
+
+* On shutdown (if I can get a clean shutdown), turn the LEDs off.
+* Write videos to `~/Videos` directory.
+* Sort out camera resolution.

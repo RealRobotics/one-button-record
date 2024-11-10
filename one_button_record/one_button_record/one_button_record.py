@@ -60,8 +60,11 @@ class ImageWriter:
 class ImageSubscriberNode(Node):
     def __init__(self, hardware_interface):
         super().__init__("image_subscriber")
+        # Main state variables.
         self._ready = False
         self._recording = False
+        # Button sub-state variable.
+        self._button_was_pressed = False
         # FIXME hard coded file name.
         self._filename = "test.mp4"
         self._hardware_interface = hardware_interface
@@ -74,21 +77,12 @@ class ImageSubscriberNode(Node):
         )
         # Create a timer that fires at 20Hz
         timer_period = 0.05
-        self._timer = self.create_timer(timer_period, self.timer_callback)
+        self._timer = self.create_timer(timer_period, self._timer_callback)
         # Blink interval vars.
         self._blink_next_t = time.time()
         self._BLINK_INTERVAL_S = 0.25  # Seconds
 
-    def timer_callback(self):
-        # self.get_logger().info("timer has fired")
-        # Poll the state of the push button.
-        button_state = self._hardware_interface.get_button_state()
-        if button_state:
-            if self._recording:
-                self.stop_recording()
-            else:
-                self.start_recording(self._filename)
-        # Update LEDs.
+    def _update_leds(self):
         if self._blink_next_t < time.time():
             self._hardware_interface.blink()
             self._blink_next_t = time.time() + self._BLINK_INTERVAL_S
@@ -98,6 +92,30 @@ class ImageSubscriberNode(Node):
             self._hardware_interface.set_led_state(LEDState.READY)
         else:
             self._hardware_interface.set_led_state(LEDState.POWER_ON)
+
+    def _timer_callback(self):
+        # self.get_logger().info("timer has fired")
+        # Poll the state of the push button.
+        button_pressed = self._hardware_interface.get_button_state()
+        if button_pressed:
+            if not self._button_was_pressed:
+                # New button press detected.
+                self._button_was_pressed = True
+                if self._recording:
+                    self.stop_recording()
+                else:
+                    filename = (
+                        # "~/Videos/" +
+                        datetime.datetime.now().strftime("%Y%m%dT%H%M%S")
+                        + ".mp4"
+                    )
+                    self.start_recording(filename)
+        else:
+            if self._button_was_pressed:
+                # Button released.
+                self._button_was_pressed = False
+        # Update LEDs.
+        self._update_leds()
 
     def image_callback(self, msg):
         # CompressedImage.msg format.
