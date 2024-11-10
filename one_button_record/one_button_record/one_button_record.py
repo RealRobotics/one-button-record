@@ -168,8 +168,9 @@ def main(args=None):
         pass
     image_subscriber.destroy_node()
     # FIXME(AJB) Generates exception after Ctrl-C.  Looks like it is a bug in rclpy.
+    # Commenting it out stops all the noise!
     # rclpy.shutdown()
-    hw.set_led_state(LEDState.OFF)
+    hw.set_led_state(LEDState.ALL_OFF)
     print("Shutdown.")
 
 
