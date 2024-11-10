@@ -42,23 +42,29 @@ class HardwareInterfaceLatte(HardwareInterface):
         self._input_pin_last_value = not value
 
     # These are called by the base class.
+    def _set_all_off(self):
+        self._board.digital[self._LED_POWER].write(False)
+        self._board.digital[self._LED_READY].write(False)
+        self._board.digital[self._LED_RECORDING].write(False)
+        logging.info("HIL::All off")
+
     def _set_power_on(self):
         self._board.digital[self._LED_POWER].write(True)
         self._board.digital[self._LED_READY].write(False)
         self._board.digital[self._LED_RECORDING].write(False)
-        logging.info("HIL::Power on...")
+        logging.info("HIL::Power on")
 
     def _set_ready(self):
         self._board.digital[self._LED_POWER].write(True)
         self._board.digital[self._LED_READY].write(True)
         self._board.digital[self._LED_RECORDING].write(False)
-        logging.info("HIL::Ready...")
+        logging.info("HIL::Ready")
 
     def _set_recording(self):
         self._board.digital[self._LED_POWER].write(True)
         self._board.digital[self._LED_READY].write(True)
         self._board.digital[self._LED_RECORDING].write(True)
-        logging.info("HIL::Recording...")
+        logging.info("HIL::Recording")
 
     # This overrides the based class implementation.
     def get_button_state(self) -> bool:
