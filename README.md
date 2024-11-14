@@ -14,16 +14,17 @@ The following topics and messages are used by this driver.
 
 ## Hardware Interface
 
-This package has been built and tested on a RPi 4B.  The interface used is as follows:
+This package has been built and tested on a LattePanda 3 Delta.  The hardware interface used is as follows:
 
 | GPIO Pin | Usage |
 |---|---|
-| 21 | Push button input |
-| 22 | Status - Power On |
-| 23 | Status - Ready |
-| 24 | Status - Recording |
+| 11 | Push button input |
+|  8 | Status - Power On |
+|  9 | Status - Ready |
+| 10 | Status - Recording |
+| 13 | Onboard red LED - Arduino program running |
 
-The hardware_interface.cpp file can be modified to suit your hardware.
+There is a generic [hardware interface file](one_button_record/one_button_record/hardware_interface.py) and new concrete interface classes can be implemented for different use cases, e.g. [LattePanda 3 Delta](one_button_record/one_button_record/hardware_interface_latte.py) (tested) and the [Raspberry Pi version](one_button_record/one_button_record/hardware_interface_rpi.py) (not tested).
 
 ## Build the ROS2 package
 
